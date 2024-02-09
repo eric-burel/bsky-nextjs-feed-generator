@@ -1,4 +1,5 @@
 import http from 'http'
+import path from 'path'
 import events from 'events'
 import express from 'express'
 import { DidResolver, MemoryCache } from '@atproto/identity'
@@ -57,6 +58,9 @@ export class FeedGenerator {
     describeGenerator(server, ctx)
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
+    // server the feed icon
+    // @see https://expressjs.com/en/starter/static-files.html#serving-static-files-in-express
+    app.use(express.static(path.join(__dirname, "./public")))
 
     return new FeedGenerator(app, db, firehose, cfg)
   }
