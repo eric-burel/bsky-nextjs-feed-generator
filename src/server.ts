@@ -61,7 +61,6 @@ export class FeedGenerator {
     // server the feed icon
     // @see https://expressjs.com/en/starter/static-files.html#serving-static-files-in-express
     app.use(express.static(path.join(__dirname, "./public")))
-
     return new FeedGenerator(app, db, firehose, cfg)
   }
 
