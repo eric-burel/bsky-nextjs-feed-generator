@@ -20,7 +20,11 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     const postsToCreate = ops.posts.creates
       .filter((create) => {
         // basic logic matching Next.js or NextJS
-        // TODO: match "next" by also checking if the context is related to programmation
+        // this is the indexing part (= what we store in the feed's database), 
+        // not the full algo 
+        // =>  here we only filter relevant post
+        // but do not yet select the posts we will actually render nor the order
+        // see algos for the actual feed generation
         return (
           create.record.text.toLowerCase().match(/next\.js|nextjs/)
           // next related posts from well-known authors
