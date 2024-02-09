@@ -12,15 +12,22 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     // This logs the text of every post off the firehose.
     // Just for fun :)
     // Delete before actually using
-    for (const post of ops.posts.creates) {
-      console.log(post.record.text)
-    }
+    // for (const post of ops.posts.creates) {
+    //   console.log(post.record.text)
+    // }
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
+        // basic logic matching Next.js or NextJS
+        // TODO: match "next" by also checking if the context is related to programmation
+        return (
+          create.record.text.toLowerCase().match(/next\.js|nextjs/)
+          // next related posts from well-known authors
+          || create.author.match(/danA/) && create.record.text.toLowerCase().includes("next")
+        )
         // only alf-related posts
-        return create.record.text.toLowerCase().includes('alf')
+        // return create.record.text.toLowerCase().includes('alf')
       })
       .map((create) => {
         // map alf-related posts to a db row
