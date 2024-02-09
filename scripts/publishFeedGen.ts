@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import path from 'path'
 import { AtpAgent, BlobRef } from '@atproto/api'
 import fs from 'fs/promises'
 import { ids } from '../src/lexicon/lexicons'
@@ -29,7 +30,7 @@ const run = async () => {
 
   // (Optional) The path to an image to be used as your feed's avatar
   // Ex: ~/path/to/avatar.jpeg
-  const avatar: string = '/favicon.png'
+  const avatar: string = path.join(__dirname, '../src/public/favicon.png')
 
   // -------------------------------------
   // NO NEED TO TOUCH ANYTHING BELOW HERE
