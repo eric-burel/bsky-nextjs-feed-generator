@@ -28,7 +28,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         return (
           create.record.text.toLowerCase().match(/next\.js|nextjs/)
           // next related posts from well-known authors
-          || create.author.match(/danA/) && create.record.text.toLowerCase().includes("next")
+          || create.author.match(/danabra\.mov/) && create.record.text.toLowerCase().includes("next")
         )
         // only alf-related posts
         // return create.record.text.toLowerCase().includes('alf')
