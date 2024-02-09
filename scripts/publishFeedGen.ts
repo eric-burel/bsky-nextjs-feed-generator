@@ -25,11 +25,11 @@ const run = async () => {
 
   // (Optional) A description of your feed
   // Ex: Top trending content from the whole network
-  const description = 'Latest content mentionning Next.js'
+  const description = 'Latest content mentionning Next.js. Community maintained.'
 
   // (Optional) The path to an image to be used as your feed's avatar
   // Ex: ~/path/to/avatar.jpeg
-  const avatar: string = '/favicon.ico'
+  const avatar: string = '/favicon.png'
 
   // -------------------------------------
   // NO NEED TO TOUCH ANYTHING BELOW HERE
