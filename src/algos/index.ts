@@ -4,13 +4,13 @@ import {
   OutputSchema as AlgoOutput,
 } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 // import * as whatsAlf from './whats-alf'
-import * as whatsNextjs from './whats-nextjs'
+import * as latestNextjs from './latest'
 
 type AlgoHandler = (ctx: AppContext, params: QueryParams) => Promise<AlgoOutput>
 
 const algos: Record<string, AlgoHandler> = {
   //[whatsAlf.shortname]: whatsAlf.handler,
-  [whatsNextjs.shortname]: whatsNextjs.handler,
+  [latestNextjs.shortname]: latestNextjs.handler,
 }
 
 export default algos
