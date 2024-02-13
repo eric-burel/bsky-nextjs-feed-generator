@@ -1,0 +1,20 @@
+# Run a postgreSQL database locally
+# Does NOT run the app
+# https://hub.docker.com/_/postgres
+# Use postgres/example user/password credentials
+# docker-compose up to run
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    # restart: always
+    environment:
+      POSTGRES_PASSWORD: $FEEDGEN_POSTGRES_PASSWORD
+
+  adminer:
+    image: adminer
+    # restart: always
+    ports:
+      - 8080:8080
