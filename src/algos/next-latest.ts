@@ -33,20 +33,26 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
       .orWhere((qb) => qb.where('post.indexedAt', '=', timeStr))
       .where('post.cid', '<', cid)
   }
-  const res = await builder.execute()
+  try {
 
-  const feed = res.map((row) => ({
-    post: row.uri,
-  }))
+    const res = await builder.execute()
 
-  let cursor: string | undefined
-  const last = res.at(-1)
-  if (last) {
-    cursor = `${new Date(last.indexedAt).getTime()}::${last.cid}`
-  }
+    const feed = res.map((row) => ({
+      post: row.uri,
+    }))
 
-  return {
-    cursor,
-    feed,
+    let cursor: string | undefined
+    const last = res.at(-1)
+    if (last) {
+      cursor = `${new Date(last.indexedAt).getTime()}::${last.cid}`
+    }
+
+    return {
+      cursor,
+      feed,
+    }
+  } catch (err) {
+    console.error("Couldn't get data from handler", err)
+    throw err
   }
 }
