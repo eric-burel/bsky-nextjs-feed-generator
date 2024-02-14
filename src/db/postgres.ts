@@ -15,6 +15,7 @@ config: PoolConfig */): Database => {
             pool: new Pool({
                 // client pool size
                 max: 10,
+                ssl: true,
                 ...config,
             })
         }),
