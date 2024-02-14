@@ -20,7 +20,7 @@ export const latestMatchingLabelHandler = (label: PostLabel["label"]) => async (
     .orderBy('indexedAt', 'desc')
     .orderBy('cid', 'desc')
     // match posts with next.js label
-    .whereExists((qb) => qb.selectFrom('label').where("label.uri", "==", "post.uri").where("label", "==", label))
+    .whereExists((qb) => qb.selectFrom('label').where("label.uri", "=", "post.uri").where("label", "=", label))
     .limit(params.limit)
 
   if (params.cursor) {
@@ -34,20 +34,25 @@ export const latestMatchingLabelHandler = (label: PostLabel["label"]) => async (
       .orWhere((qb) => qb.where('post.indexedAt', '=', timeStr))
       .where('post.cid', '<', cid)
   }
-  const res = await builder.execute()
+  try {
+    const res = await builder.execute()
 
-  const feed = res.map((row) => ({
-    post: row.uri,
-  }))
+    const feed = res.map((row) => ({
+      post: row.uri,
+    }))
 
-  let cursor: string | undefined
-  const last = res.at(-1)
-  if (last) {
-    cursor = `${new Date(last.indexedAt).getTime()}::${last.cid}`
-  }
+    let cursor: string | undefined
+    const last = res.at(-1)
+    if (last) {
+      cursor = `${new Date(last.indexedAt).getTime()}::${last.cid}`
+    }
 
-  return {
-    cursor,
-    feed,
+    return {
+      cursor,
+      feed,
+    }
+  } catch (err) {
+    console.error("Couldn't get data from handler", label, err)
+    throw err
   }
 }
