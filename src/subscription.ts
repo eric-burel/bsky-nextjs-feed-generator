@@ -3,6 +3,36 @@ import {
   isCommit,
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
+import { Record as PostRecord } from './lexicon/types/app/bsky/feed/post'
+
+/**
+ * For random posts,
+ * match posts that are 100% sure related to next.js
+ */
+const strictNextRegExp = /next\.js|nextjs|react server comp|app router/
+/**
+ * For well-known authors,
+ * match anything closely related to next
+ */
+const laxNextRegExp = /next|react|rsc|app?(\ )router|ssr|ssg|ppr|js/
+const wellKnownAuthors = [
+  "leerob.bsky.social",
+  "danabra.mov",
+]
+const wellKnownDomains = [
+  "vercel.com"
+]
+const wellKnownDomainsRegExp = new RegExp(
+  wellKnownDomains
+    .map(d => d.replaceAll(".", "\\."))
+    .join("|"))
+function isNextjsRelated(record: PostRecord, author: string) {
+  const lowerRecord = record.text.toLowerCase()
+  if (wellKnownAuthors.includes(author) || author.match(wellKnownDomainsRegExp)) {
+    return lowerRecord.match(laxNextRegExp)
+  }
+  return lowerRecord.match(strictNextRegExp)
+}
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
@@ -25,13 +55,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         // =>  here we only filter relevant post
         // but do not yet select the posts we will actually render nor the order
         // see algos for the actual feed generation
-        return (
-          create.record.text.toLowerCase().match(/next\.js|nextjs/)
-          // next related posts from well-known authors
-          || create.author.match(/danabra\.mov/) && create.record.text.toLowerCase().includes("next")
-        )
-        // only alf-related posts
-        // return create.record.text.toLowerCase().includes('alf')
+        return isNextjsRelated(create.record, create.author)
       })
       .map((create) => {
         // map alf-related posts to a db row
