@@ -1,3 +1,4 @@
+import { PostLabel } from './db/schema'
 import {
   OutputSchema as RepoEvent,
   isCommit,
@@ -18,23 +19,23 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     //   console.log(post.record.text)
     // }
 
+    // We are assuming computing the label again during feed generation
+    // is more expensive than storing it
+    // (labelling might use ML etc.)
+    const labelsToCreate: Array<PostLabel> = []
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
-    const nextPosts = ops.posts.creates
+    const posts = ops.posts.creates
+      // coarse-grained filtering + labelling for easier retrieval and filtering in algos
       .filter((create) => {
-        // basic logic matching Next.js or NextJS
-        // this is the indexing part (= what we store in the feed's database), 
-        // not the full algo 
-        // =>  here we only filter relevant post
-        // but do not yet select the posts we will actually render nor the order
-        // see algos for the actual feed generation
-        return isNextjsRelated(create.record, create.author)
+        const isNext = isNextjsRelated(create.record, create.author)
+        const isReact = isReactjsRelated(create.record, create.author)
+        return isNext || isReact
       })
     const reactPosts = ops.posts.creates
       .filter((create) => {
         return isReactjsRelated(create.record, create.author)
       })
-    //|| isReactjsRelated(create.record, create.author)
-    const postsToCreate = [...nextPosts, ...reactPosts]
+    const postsToCreate = posts
       .map((create) => {
         // map alf-related posts to a db row
         return {
@@ -45,19 +46,14 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
           indexedAt: new Date().toISOString(),
         }
       })
-    // We are assuming computing the label again during feed generation
-    // is more expensive than storing it
-    // (labelling might use ML etc.)
-    const labelsToCreate = [
-      ...nextPosts.map(create => ({ uri: create.uri, label: "next" })),
-      ...reactPosts.map(create => ({ uri: create.uri, label: "react" }))
-    ]
 
     if (postsToDelete.length > 0) {
       await this.db
         .deleteFrom('post')
         .where('uri', 'in', postsToDelete)
         .execute()
+      // remove labels
+      // TODO: could use cascading rules instead?
       await this.db
         .deleteFrom('label')
         .where('uri', 'in', postsToDelete)
