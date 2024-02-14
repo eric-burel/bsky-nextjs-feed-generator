@@ -29,11 +29,13 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
       .filter((create) => {
         const isNext = isNextjsRelated(create.record, create.author)
         const isReact = isReactjsRelated(create.record, create.author)
+        if (isNext) {
+          labelsToCreate.push({ label: "next", uri: create.uri })
+        }
+        if (isReact) {
+          labelsToCreate.push({ label: "react", uri: create.uri })
+        }
         return isNext || isReact
-      })
-    const reactPosts = ops.posts.creates
-      .filter((create) => {
-        return isReactjsRelated(create.record, create.author)
       })
     const postsToCreate = posts
       .map((create) => {
@@ -65,6 +67,9 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .values(postsToCreate)
         .onConflict((oc) => oc.doNothing())
         .execute()
+    }
+    // the sql query seems invalid if labelsToCreate is empty
+    if (labelsToCreate.length > 0) {
       await this.db.insertInto('label')
         .values(labelsToCreate)
         .onConflict((oc) => oc.doNothing())

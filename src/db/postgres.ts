@@ -1,11 +1,11 @@
 // Vercel provides a good example of postgres + kysely
 // @see https://github.com/vercel/examples/tree/main/storage/postgres-kysely
 import { Kysely, PostgresDialect } from 'kysely'
-import { Pool } from 'pg'
+import { Pool, PoolConfig } from 'pg'
 import { DatabaseSchema } from './schema'
 import { Database } from './database'
 
-export const createDb = (/** 
+export const createDb = (config: Partial<PoolConfig>/** 
 TODO: asses whether we should get config from args or directly env
 config: PoolConfig */): Database => {
     // @see https://kysely.dev/docs/getting-started
@@ -17,9 +17,10 @@ config: PoolConfig */): Database => {
                 host: "localhost",
                 user: "postgres",
                 password: process.env.FEEDGEN_POSTGRES_PASSWORD,
-                port: 5434,
+                port: 5432,
                 // client pool size
                 max: 10,
+                ...config,
             })
         }),
     })
