@@ -20,7 +20,7 @@ export const latestMatchingLabelHandler = (label: PostLabel["label"]) => async (
     .orderBy('indexedAt', 'desc')
     .orderBy('cid', 'desc')
     // match posts with next.js label
-    .whereExists((qb) => qb.selectFrom('label').where("label.uri", "=", "post.uri").where("label.label", "=", label))
+    .whereExists((qb) => qb.selectFrom('label').selectAll().whereRef("label.uri", "=", "post.uri").where("label.label", "=", label))
     .limit(params.limit)
 
   if (params.cursor) {
@@ -35,6 +35,9 @@ export const latestMatchingLabelHandler = (label: PostLabel["label"]) => async (
       .where('post.cid', '<', cid)
   }
   try {
+    if (process.env.NODE_ENV === "development") {
+      console.log(builder.compile())
+    }
     const res = await builder.execute()
 
     const feed = res.map((row) => ({

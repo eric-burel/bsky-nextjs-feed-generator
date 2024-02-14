@@ -15,9 +15,11 @@ config: PoolConfig */): Database => {
             pool: new Pool({
                 // client pool size
                 max: 10,
-                ssl: true,
+                ssl: config.host === "localhost" ? false : true,
                 ...config,
-            })
+            }),
+
+
         }),
     })
 }
