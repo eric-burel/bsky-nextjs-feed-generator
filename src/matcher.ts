@@ -25,8 +25,9 @@ export function isNextjsRelated(record: PostRecord, author: string) {
         text.match(
             /\bnext\.js\b|\bnextjs\b/i
         ) ||
-        // too many false positive when at the beginning of a sentence
-        text.match(/\s\bNext\b/) ||
+        // Too much noise at the moment
+        // we need to check if the post is related to programming
+        // text.match(/\s\bNext\b/) ||
         // other relevant concepts probably related to next
         text.match(/react server comp|app router|page router/)
     )
@@ -53,11 +54,10 @@ export function isReactjsRelated(record: PostRecord, author: string) {
         text.match(
             /\breact\.js\b|\breactjs\b/i
         ) ||
-        // match only "React" to avoind ambiguity with the verb
-        // might be improved by checking if the context is related to web programming
-        // too many false positive when at the beginning of a sentence
-        text.match(/\s\bReact\b/) ||
+        // Too much noise at the moment
+        // we need to check if the post is related to programming
+        //text.match(/\s\bReact\b/) ||
         // various frameworks
-        text.match(/\bnext|\bgatsby|\bastro|\bvite|\bremix/)
+        text.match(/\bnext?(\.)js|\bgatsby(?\.)js\b|\bastro?(\.)js\b|\bvite(?\.)js\b|\bremix(?.)js\b/)
     )
 }
