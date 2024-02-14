@@ -4,7 +4,7 @@ import { Record as PostRecord } from './lexicon/types/app/bsky/feed/post'
  * For well-known authors and domains,
  * match anything closely related to next or js
  */
-const laxNextRegExp = /\bnext\b|\breact\b|\brsc\b|app?(\ )router|ssr|ssg|ppr|js/i
+const laxNextRegExp = /\bnext\b|\breact\b|\brsc\b|app ?router|ssr|ssg|ppr|js/i
 const nextWellKnownAuthors = [
     "leerob.bsky.social",
     "danabra.mov",
@@ -23,7 +23,7 @@ export function isNextjsRelated(record: PostRecord, author: string) {
     }
     return (
         text.match(
-            /\bnext\.js\b|\bnextjs\b/i
+            /\bnext?\.js\b/i
         ) ||
         // Too much noise at the moment
         // we need to check if the post is related to programming
@@ -52,12 +52,12 @@ export function isReactjsRelated(record: PostRecord, author: string) {
     }
     return (
         text.match(
-            /\breact\.js\b|\breactjs\b/i
+            /\breact\.?js\b/i
         ) ||
         // Too much noise at the moment
         // we need to check if the post is related to programming
         //text.match(/\s\bReact\b/) ||
         // various frameworks
-        text.match(/\bnext?(\.)js|\bgatsby(?\.)js\b|\bastro?(\.)js\b|\bvite(?\.)js\b|\bremix(?.)js\b/)
+        text.match(/\bnext\.?js|\bgatsby\.?js\b|\bastro\.?js\b|\bvite\.?js\b|\bremix\.?js\b/)
     )
 }
