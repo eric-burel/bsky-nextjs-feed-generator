@@ -20,7 +20,7 @@ export const latestMatchingLabelHandler = (label: PostLabel["label"]) => async (
     .orderBy('indexedAt', 'desc')
     .orderBy('cid', 'desc')
     // match posts with next.js label
-    .whereExists((qb) => qb.selectFrom('label').where("label.uri", "=", "post.uri").where("label", "=", label))
+    .whereExists((qb) => qb.selectFrom('label').where("label.uri", "=", "post.uri").where("label.label", "=", label))
     .limit(params.limit)
 
   if (params.cursor) {
