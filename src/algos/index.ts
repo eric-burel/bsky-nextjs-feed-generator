@@ -4,7 +4,7 @@ import {
   OutputSchema as AlgoOutput,
 } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 // import * as whatsAlf from './whats-alf'
-import * as latestNextjs from './latest'
+import * as latestNextjs from './next-latest'
 
 type AlgoHandler = (ctx: AppContext, params: QueryParams) => Promise<AlgoOutput>
 

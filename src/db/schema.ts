@@ -1,6 +1,7 @@
 export type DatabaseSchema = {
   post: Post
   sub_state: SubState
+  label: PostLabel
 }
 
 export type Post = {
@@ -9,6 +10,11 @@ export type Post = {
   replyParent: string | null
   replyRoot: string | null
   indexedAt: string
+}
+
+export type PostLabel = {
+  uri: string,
+  label: string
 }
 
 export type SubState = {

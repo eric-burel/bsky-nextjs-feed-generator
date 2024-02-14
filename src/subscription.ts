@@ -2,37 +2,9 @@ import {
   OutputSchema as RepoEvent,
   isCommit,
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
+import { isNextjsRelated, isReactjsRelated } from './matcher'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
-import { Record as PostRecord } from './lexicon/types/app/bsky/feed/post'
 
-/**
- * For random posts,
- * match posts that are 100% sure related to next.js
- */
-const strictNextRegExp = /next\.js|nextjs|react server comp|app router/
-/**
- * For well-known authors,
- * match anything closely related to next
- */
-const laxNextRegExp = /next|react|rsc|app?(\ )router|ssr|ssg|ppr|js/
-const wellKnownAuthors = [
-  "leerob.bsky.social",
-  "danabra.mov",
-]
-const wellKnownDomains = [
-  "vercel.com"
-]
-const wellKnownDomainsRegExp = new RegExp(
-  wellKnownDomains
-    .map(d => d.replaceAll(".", "\\."))
-    .join("|"))
-function isNextjsRelated(record: PostRecord, author: string) {
-  const lowerRecord = record.text.toLowerCase()
-  if (wellKnownAuthors.includes(author) || author.match(wellKnownDomainsRegExp)) {
-    return lowerRecord.match(laxNextRegExp)
-  }
-  return lowerRecord.match(strictNextRegExp)
-}
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
@@ -47,7 +19,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     // }
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
-    const postsToCreate = ops.posts.creates
+    const nextPosts = ops.posts.creates
       .filter((create) => {
         // basic logic matching Next.js or NextJS
         // this is the indexing part (= what we store in the feed's database), 
@@ -57,6 +29,12 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         // see algos for the actual feed generation
         return isNextjsRelated(create.record, create.author)
       })
+    const reactPosts = ops.posts.creates
+      .filter((create) => {
+        return isReactjsRelated(create.record, create.author)
+      })
+    //|| isReactjsRelated(create.record, create.author)
+    const postsToCreate = [...nextPosts, ...reactPosts]
       .map((create) => {
         // map alf-related posts to a db row
         return {
@@ -67,10 +45,21 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
           indexedAt: new Date().toISOString(),
         }
       })
+    // We are assuming computing the label again during feed generation
+    // is more expensive than storing it
+    // (labelling might use ML etc.)
+    const labelsToCreate = [
+      ...nextPosts.map(create => ({ uri: create.uri, label: "next" })),
+      ...reactPosts.map(create => ({ uri: create.uri, label: "react" }))
+    ]
 
     if (postsToDelete.length > 0) {
       await this.db
         .deleteFrom('post')
+        .where('uri', 'in', postsToDelete)
+        .execute()
+      await this.db
+        .deleteFrom('label')
         .where('uri', 'in', postsToDelete)
         .execute()
     }
@@ -78,6 +67,10 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
       await this.db
         .insertInto('post')
         .values(postsToCreate)
+        .onConflict((oc) => oc.doNothing())
+        .execute()
+      await this.db.insertInto('label')
+        .values(labelsToCreate)
         .onConflict((oc) => oc.doNothing())
         .execute()
     }

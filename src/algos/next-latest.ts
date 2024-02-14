@@ -18,6 +18,8 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
     .selectAll()
     .orderBy('indexedAt', 'desc')
     .orderBy('cid', 'desc')
+    // match posts with next.js label
+    .whereExists((qb) => qb.selectFrom('label').where("label.uri", "==", "post.uri").where("label", "==", "next"))
     .limit(params.limit)
 
   if (params.cursor) {

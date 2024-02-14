@@ -18,6 +18,12 @@ migrations['001'] = {
       .addColumn('replyRoot', 'varchar')
       .addColumn('indexedAt', 'varchar', (col) => col.notNull())
       .execute()
+    // additionnal table to label posts during indexing,
+    // allowing to handle multiple feeds efficiently
+    await db.schema
+      .createTable('label')
+      .addColumn('uri', 'varchar', (col) => col.primaryKey())
+      .addColumn('label', 'varchar', (col) => col.notNull())
     await db.schema
       .createTable('sub_state')
       .addColumn('service', 'varchar', (col) => col.primaryKey())
