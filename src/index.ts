@@ -11,6 +11,10 @@ const run = async () => {
     listenhost: maybeStr(process.env.FEEDGEN_LISTENHOST) ?? 'localhost',
     // sqliteLocation: maybeStr(process.env.FEEDGEN_SQLITE_LOCATION) ?? ':memory:',
     postgres: {
+      user: process.env.FEEDGEN_POSTGRES_USER ?? "feed",
+      database: process.env.FEEDGEN_POSTGRES_DB ?? "feed",
+      host: process.env.FEEDGEN_POSTGRES_HOST ?? "localhost",
+      port: process.env.FEEDGEN_POSTGRES_PORT ? parseInt(process.env.FEEDGEN_POSTGRES_PORT) : 5432,
       password: process.env.FEEDGEN_POSTGRES_PASSWORD ?? ""
     },
     subscriptionEndpoint:

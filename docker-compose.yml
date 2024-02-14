@@ -12,6 +12,8 @@ services:
     # restart: always
     environment:
       POSTGRES_PASSWORD: $FEEDGEN_POSTGRES_PASSWORD
+      POSTGRES_USER: "feed"
+      POSTGRES_DB: "feed"
     ports:
       - 5432:5432
 
