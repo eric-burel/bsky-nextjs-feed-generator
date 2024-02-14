@@ -14,7 +14,8 @@ export type Post = {
 
 export type PostLabel = {
   uri: string,
-  label: string
+  // add labels as needed here
+  label: "react" | "next"
 }
 
 export type SubState = {
